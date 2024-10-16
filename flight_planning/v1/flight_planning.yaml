@@ -204,7 +204,7 @@ components:
             ID uniquely identifying the upsertion request.  If additional requests are received with the same
             request_id, the response from the first request should be returned, or an error indicated.
 
-    FlightPositionReportPostRequest:
+    PostFlightPositionRequest:
       description: >-
         Post the flight position report to the client
       type: object
@@ -355,6 +355,7 @@ components:
             any part of that flight plan intersects this area.
           anyOf:
             - $ref: './geotemporal.yaml#/components/schemas/Volume4D'
+
     ClearAreaOutcome:
       type: object
       properties:
@@ -375,6 +376,7 @@ components:
         details:
           description: Optional free-form structured data to augment `message`.
           type: object
+
     ClearAreaResponse:
       type: object
       required:
@@ -499,13 +501,13 @@ paths:
     post:
       security:
         - Authority:
-            - interuss.flight_telemetry
+            - interuss.flight_data.position
 
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FlightPositionReportPostRequest'
+              $ref: '#/components/schemas/PostFlightPositionRequest'
         required: true
       responses:
         '200':
@@ -517,10 +519,10 @@ paths:
         '409':
           description: The request contains a duplicate request_id and the response for that request is not available, or another conflict condition occurred.
 
-      summary: Post flight position report for flight with flight_plan_id
+      summary: Post flight position report
       operationId: UpsertFlightPlan
       description: >-
-        This endpoint simulates a user intention to submit a new or updated flight plan.
+        This endpoint simulates position reports being submitted for flight.
 
     delete:
       security:
