@@ -33,7 +33,7 @@ components:
             Frequency, in hertz, at which the operator will send the flight position reports to the USS.
           type: float
         max_missing_position_data_period: 
-          description: The max time elapsed in seconds, since last position, after which the flight should be considered nonconforaming
+          description: The max time elapsed in seconds, since last position, after which the flight should be considered nonconforming
           type: integer. 
 
 
