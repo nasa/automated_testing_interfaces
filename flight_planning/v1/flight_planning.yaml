@@ -520,7 +520,7 @@ paths:
           description: The request contains a duplicate request_id and the response for that request is not available, or another conflict condition occurred.
 
       summary: Post flight position report
-      operationId: UpsertFlightPlan
+      operationId: PostPositionReport
       description: >-
         This endpoint simulates position reports being submitted for flight.
 
