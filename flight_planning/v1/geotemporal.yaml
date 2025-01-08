@@ -222,7 +222,7 @@ components:
           $ref: '#/components/schemas/Altitude'
 
     Velocity:
-      description: Velocity of a flight in terms of latitude, longitude and altitude
+      description: Velocity of a flight in terms of ground speed and track
       type: object
       required:
         - speed
@@ -230,10 +230,14 @@ components:
       properties:
         speed:
           description: speed of the flight in meters per second
-          $ref: '#/components/schemas/Latitude'
+          type: number
+          format: float
         track:
           description: >- 
             Direction of flight expressed as a "True North-based" ground track angle. 
             This value is provided in degrees East of North with a minimum resolution of 1 degree. 
             A value of 360 indicates invalid, no value, or unknown.
-          $ref: '#/components/schemas/Longitude'
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 360.0
