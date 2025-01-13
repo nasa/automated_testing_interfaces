@@ -210,9 +210,7 @@ components:
       type: object
       required:
         - position_report_id
-        - time_measured
-        - position
-        - velocity
+        - position_report
       properties:
         position_report:
           description: Latitude, longitude and altitude of the flight.
