@@ -27,6 +27,7 @@ components:
     PositionReportingDetails:
       description: >-
         Details of how the operator would be providing position reports
+      type: object
       properties: 
         position_frequency:
           description: >- 
