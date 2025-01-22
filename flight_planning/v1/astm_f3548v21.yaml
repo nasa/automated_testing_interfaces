@@ -36,7 +36,7 @@ components:
           format: float
         max_missing_position_data_period: 
           description: The max time elapsed in seconds, since last position, after which the flight should be considered nonconforming
-          type: integer. 
+          type: integer
 
 
 
