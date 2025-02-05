@@ -125,7 +125,12 @@ components:
             `Planned`: The user intends to fly according to this flight plan, but is not currently using the defined
               area with an active UAS.
             
-            `InUse`: The user is currently using the defined area with an active UAS.
+            `InUse`: The user is currently using the defined area with an active UAS. For flights using position-report 
+              based nonconformance, the first request with 'InUse' usage_state with 'Nominal' uas_state, would mean 
+              commencement of flight. On receiving this request, the USS will start conformance monitoring for this flight,
+              and start expecting position reports for the flight for checking conformance. 
+              For, flights using operator-detected conformance, this first request would require USS to start conformance 
+              monitoring for the flight, and transition the related intent to Activated  state.       
             
             `Closed`: The user is no longer using, or planning to use, the flight plan.
           type: string
@@ -248,6 +253,9 @@ components:
           - `Planned`: The USS has created an authorized flight plan for the user, but the user may not yet start flying (even if within the time bounds of the flight plan).
 
           - `OkToFly`: The flight plan is in a state such that it is ok for the user to nominally fly within the bounds (including time) of the flight plan.
+              In case of flight using operator-detected conformance, this status means that USS has transitioned the intent to UTM Activated state.
+              Whereas, in case of flight using position-report detected conformance, this status mean that the USS has started conformance monitoring 
+              for the flight, and will transition the related intent to Activated state on receiving conforming position reports for the flight.        
 
           - `OffNominal`: The flight plan now reflects the user's actions, but the flight plan is not in a nominal state (e.g., the USS has placed the ASTM F3548-21 operational intent into one of the Nonconforming or Contingent states).
 
@@ -487,6 +495,30 @@ paths:
       description: >-
         This endpoint simulates a user intention to submit a new or updated flight plan.
 
+    delete:
+      security:
+        - Authority:
+            - interuss.flight_planning.direct_automated_test
+
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteFlightPlanResponse'
+          description: Flight plan was deleted successfully
+        '401':
+          description: Bearer access token was not provided in Authorization header, token could not be decoded, or token was invalid.
+        '403':
+          description: The access token was decoded successfully but did not include a scope appropriate to this endpoint.
+        '404':
+          description: The specified flight plan could not be found (it may have already been deleted).
+
+      summary: Close flight plan
+      operationId: DeleteFlightPlan
+      description: >-
+        This endpoint allows the test director to instruct the USS to remove a flight plan that is no longer needed for testing.
+
   /flight_position_report/{flight_plan_id}:
     parameters:
       - name: flight_plan_id
@@ -521,30 +553,6 @@ paths:
       operationId: PostPositionReport
       description: >-
         This endpoint simulates position reports being submitted for flight.
-
-    delete:
-      security:
-        - Authority:
-            - interuss.flight_planning.direct_automated_test
-
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DeleteFlightPlanResponse'
-          description: Flight plan was deleted successfully
-        '401':
-          description: Bearer access token was not provided in Authorization header, token could not be decoded, or token was invalid.
-        '403':
-          description: The access token was decoded successfully but did not include a scope appropriate to this endpoint.
-        '404':
-          description: The specified flight plan could not be found (it may have already been deleted).
-
-      summary: Close flight plan
-      operationId: DeleteFlightPlan
-      description: >-
-        This endpoint allows the test director to instruct the USS to remove a flight plan that is no longer needed for testing.
 
   /user_notifications:
     get:
