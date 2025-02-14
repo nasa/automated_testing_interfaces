@@ -222,7 +222,12 @@ components:
           anyOf:
             - $ref: './geotemporal.yaml#/components/schemas/PositionReport'
         position_report_id:
+          maxLength: 36
+          minLength: 36
           type: string
+          format: uuid
+          pattern: >-
+            ^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-4[0-9a-fA-F]{3}\-[8-b][0-9a-fA-F]{3}\-[0-9a-fA-F]{12}$
           description: >-
             ID uniquely identifying the position report.  If additional requests are received with the same
             position_report_id, the response from the first request should be returned, or an error indicated.
