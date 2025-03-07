@@ -222,7 +222,7 @@ components:
         - position_report
       properties:
         position_report:
-          description: Latitude, longitude and altitude of the flight.
+          description: Specifies the location, velocity and time at which the position of the flight was measured.
           anyOf:
             - $ref: './geotemporal.yaml#/components/schemas/PositionReport'
         position_report_id:
