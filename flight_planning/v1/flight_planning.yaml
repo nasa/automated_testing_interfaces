@@ -159,6 +159,7 @@ components:
           type: string
           enum:
             - Nominal
+            - Started
             - OffNominal
             - Contingent
             - NotSpecified
