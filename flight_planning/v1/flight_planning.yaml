@@ -145,6 +145,9 @@ components:
               - `Nominal`: The user or UAS reports or implies that it is performing nominally, or has not indicated
                 `OffNominal` or `Contingent`.
             
+              - `Started`: The user reports that it has started the flight. On receiving this request, the USS will start conformance monitoring for this flight,
+                and start expecting position reports for the flight for checking conformance.
+            
               - `OffNominal`: The user or UAS reports or implies that it is temporarily not conforming to its intent,
                 but may expect to be able to recover to normal operation.
             
