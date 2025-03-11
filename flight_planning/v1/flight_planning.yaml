@@ -125,7 +125,7 @@ components:
             `Planned`: The user intends to fly according to this flight plan, but is not currently using the defined
               area with an active UAS.
             
-            `InUse`: The user is currently using the defined area with an active UAS.
+            `InUse`: The user is currently using the defined area with an active UAS.        
             
             `Closed`: The user is no longer using, or planning to use, the flight plan.
           type: string
@@ -140,6 +140,9 @@ components:
               - `Nominal`: The user or UAS reports or implies that it is performing nominally, or has not indicated
                 `OffNominal` or `Contingent`.
             
+              - `Started`: The user reports that it has started the flight. On receiving this request, the USS will start conformance monitoring for this flight,
+                and start expecting position reports for the flight for checking conformance.
+            
               - `OffNominal`: The user or UAS reports or implies that it is temporarily not conforming to its intent,
                 but may expect to be able to recover to normal operation.
             
@@ -151,6 +154,7 @@ components:
           type: string
           enum:
             - Nominal
+            - Started
             - OffNominal
             - Contingent
             - NotSpecified
@@ -204,6 +208,30 @@ components:
             ID uniquely identifying the upsertion request.  If additional requests are received with the same
             request_id, the response from the first request should be returned, or an error indicated.
 
+    PostFlightPositionRequest:
+      description: >-
+        Post the flight position report to the client
+      type: object
+      required:
+        - position_report_id
+        - position_report
+      properties:
+        position_report:
+          description: Specifies the location, velocity and time at which the position of the flight was measured.
+          anyOf:
+            - $ref: './geotemporal.yaml#/components/schemas/PositionReport'
+        position_report_id:
+          maxLength: 36
+          minLength: 36
+          type: string
+          format: uuid
+          pattern: >-
+            ^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-4[0-9a-fA-F]{3}\-[8-b][0-9a-fA-F]{3}\-[0-9a-fA-F]{12}$
+          description: >-
+            ID uniquely identifying the position report.  If additional requests are received with the same
+            position_report_id, the response from the first request should be returned, or an error indicated.
+
+
     PlanningActivityResult:
       type: string
       description: >-
@@ -229,6 +257,9 @@ components:
           - `Planned`: The USS has created an authorized flight plan for the user, but the user may not yet start flying (even if within the time bounds of the flight plan).
 
           - `OkToFly`: The flight plan is in a state such that it is ok for the user to nominally fly within the bounds (including time) of the flight plan.
+              In case of flight using operator-detected conformance, this status means that USS has transitioned the intent to UTM Activated state.
+              Whereas, in case of flight using position-report detected conformance, this status mean that the USS has started conformance monitoring 
+              for the flight, and will transition the related intent to Activated state on receiving conforming position reports for the flight.        
 
           - `OffNominal`: The flight plan now reflects the user's actions, but the flight plan is not in a nominal state (e.g., the USS has placed the ASTM F3548-21 operational intent into one of the Nonconforming or Contingent states).
 
@@ -285,6 +316,7 @@ components:
           anyOf:
             - $ref: '#/components/schemas/AdvisoryInclusion'
 
+
     DeleteFlightPlanResponse:
       type: object
       required:
@@ -333,6 +365,7 @@ components:
             any part of that flight plan intersects this area.
           anyOf:
             - $ref: './geotemporal.yaml#/components/schemas/Volume4D'
+
     ClearAreaOutcome:
       type: object
       properties:
@@ -353,6 +386,7 @@ components:
         details:
           description: Optional free-form structured data to augment `message`.
           type: object
+
     ClearAreaResponse:
       type: object
       required:
@@ -488,6 +522,41 @@ paths:
       operationId: DeleteFlightPlan
       description: >-
         This endpoint allows the test director to instruct the USS to remove a flight plan that is no longer needed for testing.
+
+  /flight_position_report/{flight_plan_id}:
+    parameters:
+      - name: flight_plan_id
+        in: path
+        required: true
+        description: A UUID-formatted string identifying the user's flight plan intent.
+        schema:
+          $ref: '#/components/schemas/FlightPlanID'
+
+    post:
+      security:
+        - Authority:
+            - interuss.flight_data.position
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostFlightPositionRequest'
+        required: true
+      responses:
+        '200':
+          description: Requested data was processed successfully
+        '401':
+          description: Bearer access token was not provided in Authorization header, token could not be decoded, or token was invalid.
+        '403':
+          description: The access token was decoded successfully but did not include a scope appropriate to this endpoint.
+        '409':
+          description: The request contains a duplicate request_id and the response for that request is not available, or another conflict condition occurred.
+
+      summary: Post flight position report
+      operationId: PostPositionReport
+      description: >-
+        This endpoint simulates position reports being submitted for flight.
 
   /user_notifications:
     get:
