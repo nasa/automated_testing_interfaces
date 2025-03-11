@@ -125,12 +125,7 @@ components:
             `Planned`: The user intends to fly according to this flight plan, but is not currently using the defined
               area with an active UAS.
             
-            `InUse`: The user is currently using the defined area with an active UAS. For flights using position-report 
-              based nonconformance, the first request with 'InUse' usage_state with 'Nominal' uas_state, would mean 
-              commencement of flight. On receiving this request, the USS will start conformance monitoring for this flight,
-              and start expecting position reports for the flight for checking conformance. 
-              For, flights using operator-detected conformance, this first request would require USS to start conformance 
-              monitoring for the flight, and transition the related intent to Activated  state.       
+            `InUse`: The user is currently using the defined area with an active UAS.        
             
             `Closed`: The user is no longer using, or planning to use, the flight plan.
           type: string
