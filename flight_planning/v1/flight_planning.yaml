@@ -88,6 +88,26 @@ components:
           type: string
           example: v0.7.0
 
+    ServicesResponse:
+      type: object
+      required:
+        - services
+      properties:
+        services:
+          description: >-
+            The services provided by the service provider.
+          type: array
+          items: 
+            type: string
+            enum: 
+              - SC
+              - CMSA
+              - CP
+              - CM
+              - Other
+      example: 
+        services: [SC, CMSA]
+
     FlightPlan:
       description: >-
         Details of user's intent to create or modify a flight plan.
@@ -341,6 +361,13 @@ components:
           anyOf:
             - $ref: '#/components/schemas/AdvisoryInclusion'
 
+    ConformanceMonitoringStatusResponse:
+      type: string
+      enum:
+        - On
+        - Off
+        - Unknown
+
     ClearAreaRequest:
       type: object
       required:
@@ -414,6 +441,29 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
           description: >-
             This automated testing interface is available and its status was retrieved successfully.
+        '401':
+          description: Bearer access token was not provided in Authorization header, token could not be decoded, or token was invalid.
+        '403':
+          description: The access token was decoded successfully but did not include a scope appropriate to this endpoint.
+        '404':
+          description: This automated testing interface is not available.
+      summary: Status of this automated testing interface
+      description: Get the status of this automated testing interface.
+      operationId: GetStatus
+
+  /services:
+    get:
+      security:
+        - Authority:
+            - interuss.flight_planning.direct_automated_test
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicesResponse'
+          description: >-
+            Services provided by the Service Provider.
         '401':
           description: Bearer access token was not provided in Authorization header, token could not be decoded, or token was invalid.
         '403':
@@ -515,6 +565,34 @@ paths:
       operationId: DeleteFlightPlan
       description: >-
         This endpoint allows the test director to instruct the USS to remove a flight plan that is no longer needed for testing.
+
+  /conformance_monitoring_status/{flight_plan_id}:
+    parameters:
+      - name: flight_plan_id
+        in: path
+        required: true
+        description: A UUID-formatted string identifying the user's flight plan intent.
+        schema:
+          $ref: '#/components/schemas/FlightPlanID'
+    get:
+      description: Get the conformance monitoring status by the Service provider for a given flight plan.
+      security:
+        - Authority:
+            - interuss.flight_planning.plan
+      responses: 
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConformanceMonitoringStatusResponse'
+          description: Status of conformance monitoring of the given flight, by the Service provider.
+        '401':
+          description: Bearer access token was not provided in Authorization header, token could not be decoded, or token was invalid.
+        '403':
+          description: The access token was decoded successfully but did not include a scope appropriate to this endpoint.
+        '404':
+          description: Flight with the queried flight_id does not exist.
+
 
   /user_notifications:
     get:
